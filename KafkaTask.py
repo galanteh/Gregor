@@ -1,7 +1,6 @@
-import logging, faker
+import logging, faker, json
 from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
-from json import dumps
 from string import Template
 from utils import TemplateUtil
 
@@ -56,10 +55,17 @@ class KafkaTask:
         return template_string.safe_substitute(d)
 
     def get_key(self):
-        return self.get_substitute_on_template(Template(self.key))
+        json_string = self.get_substitute_on_template(Template(self.key))
+        try:
+            json = json.loads(json_string) 
+        except Exception as e:
+            json = {}
+            json['key'] = json_string
+        return json
 
     def get_value(self):
-        return self.get_substitute_on_template(Template(self.value))
+        json_string = self.get_substitute_on_template(Template(self.value))
+        return json.loads(json_string)
 
     def get_faker_data(self, provider_name):
         faker = self.get_faker()
@@ -81,7 +87,9 @@ class KafkaTask:
 
                                                                                        self.topic))
             # value_serializer=lambda m: dumps(m).encode('utf-8')
-            ack = kp.send(self.topic, key=dumps(message_key).encode('utf-8'), value=dumps(message_value).encode('utf-8') )
+            key = json.dumps(message_key).encode('utf-8')
+            value = json.dumps(message_value).encode('utf-8')
+            ack = kp.send(self.topic, key=key, value=value )
             metadata = ack.get()
             self.logger.info(u'Topic: {0} Partition: {1}'.format(metadata.topic,metadata.partition))
         except NoBrokersAvailable as e:
@@ -89,4 +97,5 @@ class KafkaTask:
                 self.brokers))
         except Exception as e:
             self.logger.error(u'Error has been raised on the start of task {0}'.format(self.name))
+            self.logger.error(u'Error: {0}'.format(e))
 
