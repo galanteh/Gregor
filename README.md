@@ -4,7 +4,7 @@
 Gregor is a program that produces fake data into an Apache Kafka topic for demo purposes
 
 # Versions
-## 0.0.1 - Known limitations
+## 0.0.2 - Known limitations
 - It's only serializing into String. We must expand the possibilities to more type options.
 - It's working with multiple partitions
 - Partitions should be used with threads
