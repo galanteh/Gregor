@@ -5,8 +5,7 @@ from configparser import ConfigParser
 from time import sleep
 from KafkaTask import KafkaTask
 
-__version__ = '0.0.1'
-
+__version__ = '0.0.2'
 
 class Gregor:
 

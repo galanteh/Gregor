@@ -3,6 +3,7 @@ from kafka import KafkaProducer
 from kafka.errors import NoBrokersAvailable
 from string import Template
 from utils import TemplateUtil
+from random import randint
 
 class KafkaTask:
 
@@ -37,7 +38,11 @@ class KafkaTask:
 
     def get_producer(self):
         if self._producer is None:
-            self._producer = KafkaProducer(bootstrap_servers=self.brokers, retries=self.retries)
+            client_id = 'Gregor-Producer-{0}'.format(randint(0, 10))
+            if self.name is not None:
+                client_id = self.name
+
+            self._producer = KafkaProducer(client_id=client_id, bootstrap_servers=self.brokers, retries=self.retries)
             return self._producer
         else:
             return self._producer
